@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:4.1.1-management-alpine
+    container_name: rabbitmq-server
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"     # AMQP port
+      - "15672:15672"   # Management UI port
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: password
+      RABBITMQ_DEFAULT_VHOST: /
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - rabbitmq-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  publisher:
+    build:
+      context: ./modules/publisher
+      dockerfile: Dockerfile.publisher
+    container_name: rabbitmq-publisher
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: admin
+      RABBITMQ_PASSWORD: password
+    networks:
+      - rabbitmq-network
+    restart: unless-stopped
+
+  consumer:
+    build:
+      context: ./modules/consumer
+      dockerfile: Dockerfile.consumer
+    container_name: rabbitmq-consumer
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: admin
+      RABBITMQ_PASSWORD: password
+    networks:
+      - rabbitmq-network
+    restart: unless-stopped
+
+volumes:
+  rabbitmq_data:
+
+networks:
+  rabbitmq-network:
+    driver: bridge
