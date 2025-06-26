@@ -9,11 +9,22 @@ plugins {
 
 dependencies {
     // Project "app" depends on project "utils". (Project paths are separated with ":", so ":utils" refers to the top-level "utils" project.)
-    implementation(project(":utils"))
+    api(project(":utils"))
 }
 
 application {
     // Define the Fully Qualified Name for the application main class
     // (Note that Kotlin compiles `App.kt` to a class with FQN `com.example.app.AppKt`.)
-    mainClass = "com.github.sjubusel.app.AppKt"
+    mainClass = "com.github.sjubusel.app.ConsumerKt"
+}
+
+tasks.jar {
+    manifest {
+        attributes(
+            "Main-Class" to application.mainClass.get()
+        )
+    }
+    // Include dependencies in the JAR
+    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }

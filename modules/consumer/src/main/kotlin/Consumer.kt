@@ -1,12 +1,13 @@
 package com.github.sjubusel.app
 
+import com.github.sjubusel.utils.HOST
 import com.github.sjubusel.utils.QUEUE_NAME
 import com.rabbitmq.client.ConnectionFactory
 import com.rabbitmq.client.DeliverCallback
 
 fun main() {
     val factory = ConnectionFactory()
-    factory.host = "localhost"
+    factory.host = HOST
     factory.newConnection().use { connection ->
         val channel = connection.createChannel()
         channel.queueDeclare(QUEUE_NAME, false, false, false, null)

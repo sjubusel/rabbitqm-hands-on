@@ -24,8 +24,8 @@ services:
 
   publisher:
     build:
-      context: ./modules/publisher
-      dockerfile: Dockerfile.publisher
+      context: .
+      dockerfile: ./modules/publisher/Dockerfile
     container_name: rabbitmq-publisher
     depends_on:
       rabbitmq:
@@ -41,8 +41,8 @@ services:
 
   consumer:
     build:
-      context: ./modules/consumer
-      dockerfile: Dockerfile.consumer
+      context: .
+      dockerfile: ./modules/consumer/Dockerfile
     container_name: rabbitmq-consumer
     depends_on:
       rabbitmq:
