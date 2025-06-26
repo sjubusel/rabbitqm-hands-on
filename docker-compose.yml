@@ -39,11 +39,28 @@ services:
       - rabbitmq-network
     restart: unless-stopped
 
-  consumer:
+  consumer-1:
     build:
       context: .
       dockerfile: ./modules/consumer/Dockerfile
-    container_name: rabbitmq-consumer
+    container_name: rabbitmq-consumer-1
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: admin
+      RABBITMQ_PASSWORD: password
+    networks:
+      - rabbitmq-network
+    restart: unless-stopped
+
+  consumer-2:
+    build:
+      context: .
+      dockerfile: ./modules/consumer/Dockerfile
+    container_name: rabbitmq-consumer-2
     depends_on:
       rabbitmq:
         condition: service_healthy
