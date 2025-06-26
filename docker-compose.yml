@@ -17,7 +17,7 @@ services:
     networks:
       - rabbitmq-network
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -52,6 +52,7 @@ services:
       RABBITMQ_PORT: 5672
       RABBITMQ_USERNAME: admin
       RABBITMQ_PASSWORD: password
+      CONSUMER_COMMAND_LINE_ARGS: "INFO WARNING ERROR"
     networks:
       - rabbitmq-network
     restart: unless-stopped
@@ -69,6 +70,7 @@ services:
       RABBITMQ_PORT: 5672
       RABBITMQ_USERNAME: admin
       RABBITMQ_PASSWORD: password
+      CONSUMER_COMMAND_LINE_ARGS: "DEBUG"
     networks:
       - rabbitmq-network
     restart: unless-stopped

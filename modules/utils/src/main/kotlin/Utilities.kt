@@ -16,3 +16,10 @@ fun initConnectionFactory(host: String = HOST): ConnectionFactory {
     connectionFactory.password = PASSWORD
     return connectionFactory
 }
+
+enum class Severity {
+    DEBUG,
+    INFO,
+    WARNING,
+    ERROR
+}

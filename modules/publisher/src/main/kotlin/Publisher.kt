@@ -1,20 +1,22 @@
 package com.github.sjubusel.app
 
-import com.github.sjubusel.utils.EMPTY
 import com.github.sjubusel.utils.PUB_SUB_EXCHANGE_NAME
+import com.github.sjubusel.utils.Severity
 import com.github.sjubusel.utils.initConnectionFactory
 import com.rabbitmq.client.BuiltinExchangeType
 import com.rabbitmq.client.MessageProperties
+import kotlin.random.Random
 
 fun main() {
     initConnectionFactory().newConnection().use { connection -> // abstraction over sockets
         val channel = connection.createChannel()
-        channel.exchangeDeclare(PUB_SUB_EXCHANGE_NAME, BuiltinExchangeType.FANOUT)
+        channel.exchangeDeclare(PUB_SUB_EXCHANGE_NAME, BuiltinExchangeType.DIRECT)
 
-        val message = "Hello, World!"
+        val severity = Severity.entries[Random.nextInt(Severity.entries.size)]
+        val message = "$severity: Hello, World!"
         channel.basicPublish(
             PUB_SUB_EXCHANGE_NAME,
-            EMPTY, // was QUEUE_NAME
+            severity.name, // was QUEUE_NAME
             MessageProperties.PERSISTENT_TEXT_PLAIN,
             message.toByteArray()
         )
