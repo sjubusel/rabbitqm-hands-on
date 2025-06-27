@@ -11,14 +11,15 @@ import java.time.LocalDateTime
 fun main(args: Array<String>) {
     initConnectionFactory().newConnection()?.let { connection ->
         val channel = connection.createChannel()
-        channel.exchangeDeclare(PUB_SUB_EXCHANGE_NAME, BuiltinExchangeType.DIRECT)
+        channel.exchangeDeclare(PUB_SUB_EXCHANGE_NAME, BuiltinExchangeType.TOPIC)
         val durable = true
         val queueName = QUEUE_NAME + args.size
         channel.queueDeclare(queueName, durable, false, false, null) // idempotent
         (args.takeIf { it.isNotEmpty() } ?: arrayOf(Severity.ERROR.name))
             .forEach { severity ->
-                println(severity)
-                channel.queueBind(queueName, PUB_SUB_EXCHANGE_NAME, severity)
+                val routingKey = "*.$severity"
+                println("Binding queue '$queueName' with pattern '$routingKey'")
+                channel.queueBind(queueName, PUB_SUB_EXCHANGE_NAME, routingKey)
             }
 
         val prefetchCount = 1
@@ -26,7 +27,8 @@ fun main(args: Array<String>) {
 
         val deliveryCallback = DeliverCallback { _, delivery ->
             val message = String(delivery.body)
-            println("[x] Received '$message' at ${LocalDateTime.now()}")
+            val routingKey = delivery.envelope.routingKey
+            println("[x] Received '$message' with routing key '$routingKey' at ${LocalDateTime.now()}")
             try {
                 Thread.sleep(5000L)
             } finally {
